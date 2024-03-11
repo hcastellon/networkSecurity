@@ -1,0 +1,20 @@
+---
+services:  
+  client:
+    image: ubuntu
+    networks:
+      labnet:
+        ipv4_address: 172.20.0.4
+    command: sleep infinity
+  attacker:
+    image: ubuntu
+    networks:
+      labnet:
+        ipv4_address: 172.20.0.5
+    command: sleep infinity
+networks:
+  labnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
