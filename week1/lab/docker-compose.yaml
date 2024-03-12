@@ -1,17 +1,28 @@
 ---
 services:  
   client:
-    image: ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       labnet:
         ipv4_address: 172.20.0.4
     command: sleep infinity
   attacker:
-    image: ubuntu
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       labnet:
         ipv4_address: 172.20.0.5
     command: sleep infinity
+  web:
+    image: tomcat:9.0
+    ports:
+      - "8888:8080"
+    networks:
+      labnet:
+        ipv4_address: 172.20.0.6
 networks:
   labnet:
     driver: bridge
