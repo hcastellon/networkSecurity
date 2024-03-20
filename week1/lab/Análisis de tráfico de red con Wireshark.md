@@ -36,3 +36,5 @@ Al analizar el contenido de los paquetes capturados, se espera que puedas observ
 - La información que el atacante puede obtener del tráfico de red. 
 - La forma en que el atacante puede modificar el tráfico de red. 
 - Las medidas que se podrían tomar para evitar o mitigar el ataque de *ARP spoofing*. 
+
+Suba su reporte de laboratorio en la siguiente carpeta compartida: [Drive](https://drive.google.com/drive/folders/1CKZjlmERR6JJdU9iaO7N_yrm9t7h733o?usp=drive_link). Cree una carpeta con su nombre y suba el reporte de laboratorio en ella.
