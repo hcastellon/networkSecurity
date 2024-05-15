@@ -49,7 +49,53 @@ donde `direccion_ip` es la dirección del servidor web (investiga la dirección 
 
 Una vez que haya guardado los cambios en el archivo, copielo hacia el contenedor (proxy) a la misma ruta. Ejecute el comando `docker exec nombre_contenedor nginx -t` para validar la configuración y los cambios realizados el archivo. Si todo está bien, deberíamos ver un mensaje de éxito. Lo siguiente es refrescar los cambios realizados. Para lograrlo, ejecute el comando `docker exec nombre_contenedor nginx -s reload`.
 
-## Paso 4: Verificación
+# Parte 2
+## Paso 4: Balanceo de carga
+Crea dos servidores web más igual que en el paso #2 de manera que se tengan 3 servidores web en total. Consulta las direcciones IP asignadas a los servidores del rango de red.
+
+Para implementar el balanceo de carga en el proxy, necesitamos definir un grupo de servidores con la directiva `upstream`, la cual debe estar ubicada dentro de un contexto `http`. Así, podemos agregar las siguientes líneas al archivo de configuración `default.conf`:
+
+```
+http {
+  upstream backend {
+    server direccion_ip:8080 weight=2;
+    server direccion_ip:8080 weight=3;
+    server direccion_ip:8080 weight=1;
+  }
+
+  server {
+    location / {
+      proxy_pass http://backend;
+    }
+  }
+
+}
+```
+donde la `direccion_ip` corresponden a los servidores web implementados, y los pesos son tomados en cuenta con el algoritmo por defecto [Round Robin](https://en.wikipedia.org/wiki/Round-robin_scheduling).
+
+En este ejemplo, hemos agregado tres servidores backend: `192.168.1.10`, `192.168.1.20` y `192.168.1.30`. Hemos asignado pesos a cada servidor backend: 2, 3 y 1, respectivamente. Los pesos se utilizan para distribuir el tráfico entre los servidores backend. Un servidor backend con un peso mayor recibirá más tráfico que un servidor backend con un peso menor.
+
+## Paso 5: Autenticación y Verificación
+Para implementar autenticación y autorización en el proxy, podemos utilizar un módulo de autenticación de Nginx, como `auth_basic` o `auth_jwt`. Estos módulos permiten requerir a los usuarios que se autentiquen antes de acceder a los recursos backend. Una vez que un usuario se haya autenticado, podemos utilizar la información de autenticación para controlar qué recursos backend puede acceder. Sigue las instrucciones:
+- Lo primero que debes hacer es asegurarte de instalar el paquete `apache2-utils`. 
+- Luego, debes crear el archivo donde se guardarán las credenciales de los usuarios que accederán al proxy. Para ello, puedes ejecutar el comando `htpasswd -c /etc/nginx/.htpasswd usuario1`. Cuando presiones Enter, entonces te pedirá la contraseña y la repetición para guardarla en el archivo.
+- Crea un segundo usuario utilizando el mismo comando (sin el flag `-c` porque el archivo ya existe).
+- Verifica que el archivo contiene los nombres de usuario y las contraseñas (hashed) mostrando el contenido en consola.
+
+### Configuración de la autenticación HTTP básica del proxy
+Dentro de una ubicación que se necesita proteger, se especifica la directiva `auth_basic` y se especifica un nombre al área protegida con contraseña. El nombre del área se mostrará en la ventana de diálogo de `nombre de usuario/contraseña` cuando se soliciten las credenciales a los usuarios cuando estos quieran hacer solicitudes al proxy:
+
+```
+
+  location / {
+    auth_basic "Restricted Area";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    proxy_pass http://backend;
+  }
+
+```
+
+## Paso 6: Verificación
 Abre el navegador y escribe la dirección del proxy, pero esta vez accediendo a la aplicación que se ha cargado en el servidor web. Si todo funciona correctamente, deberías observar la página de la aplicación `sample` como parte de la consulta al servidor proxy.
 
 
