@@ -126,7 +126,7 @@ Luego de haber instalado el paquete, podemos verificar si el servicio esta ejecu
        ports:
          - "51820:51820/udp"
        networks:
-         red-proxy:
+         red-nueva:
            ipv4_address: direccion_IP
        cap_add:
          - NET_ADMIN
@@ -156,13 +156,14 @@ Luego de haber instalado el paquete, podemos verificar si el servicio esta ejecu
    Después de que el contenedor de WireGuard esté en funcionamiento, debes obtener la configuración del cliente. La configuración estará en el directorio `./config/peer_cliente1`.
 
    - Copia el archivo de configuración del cliente desde el directorio `./config/peer_cliente1/cliente1.conf` a tu máquina cliente.
-   - Instala WireGuard en una máquina cliente. Para ello, lanza un contenedor con la imagen de Ubuntu y ejecuta los siguientes comandos:
+   - Crea un contenedor cliente con el siguiente comando:
 
      ```
-     apt update && apt install -y wireguard iputils-ping resolvcong
+     docker run -d --name cnombre_contenedor --cap-add=NET_ADMIN  --cap-add=SYS_MODULE --network red_cliente_vpn --sysctl="net.ipv4.conf.all.src_valid_mark=1"  --restart unless-stopped linuxserver/wireguard:latest
      ```
-
-   - Copia el archivo de configuración del servidor VPN en la ruta `/etc/wireguard/wg0.conf`y utilízalo para conectar el cliente a la VPN:
+     donde `red_cliente_vpn` es la red que comparten tanto el cliente como el servidor VPN (esta configuración es temporal)
+.
+   - Copia el archivo de configuración del servidor VPN generado para el `cliente1`en la ruta `/etc/wireguard`y utilízalo para conectar el cliente a la VPN con el siguiente comando:
 
      ```
      wg-quick up cliente1.conf
